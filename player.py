@@ -1,4 +1,5 @@
 import pygame
+from support import *
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos): # initialization of the player
