@@ -18,14 +18,14 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         
         # gives the user velocity in a direction
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.direction.x = 1
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.direction.x = -1
         else:
             self.direction.x = 0
         
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP] or keys[pygame.K_SPACE] or keys[pygame.K_w]:
             self.jump()
 
     def apply_gravity(self):

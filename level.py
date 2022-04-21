@@ -34,25 +34,25 @@ class Level:
 
     def scroll_x(self): # horizontal level scrolling logic
         player = self.player.sprite
-        player_x = player.rect.centerx #FIXME: rect.centerx - "NoneType has no attribute rect"
+        player_x = player.rect.centerx
         direction_x = player.direction.x
 
-        if player_x < screen_width - (screen_width / 4)  and direction_x < 0:
+        if player_x < (screen_width / 3)  and direction_x < 0:
             self.world_shift = 8
             player.speed = 0
-        elif player_x > screen_width - (screen_width / 4) and direction_x > 0:
+        elif player_x > (screen_width - (screen_width / 3)) and direction_x > 0:
             self.world_shift = -8
-            player.speed = 0
+            player.speed = -0
         else:
             self.world_shift = 0
             player.speed = 8
 
     #def horizontal_collision(self):
-    #    player = self.player.sprite
+        player = self.player.sprite
 
-    #    player.rect.x += self.direction.x * self.speed
+        player.rect.x += player.direction.x * player.speed
 
-    def draw(self):
+    def draw(self): # drawing of the level
         # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
