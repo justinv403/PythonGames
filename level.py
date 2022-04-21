@@ -36,7 +36,8 @@ class Level:
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.direction.x
-
+        
+        # finds where the player is and determines whether the screen should shift or not
         if player_x < (screen_width / 3)  and direction_x < 0:
             self.world_shift = 8
             player.speed = 0
@@ -47,10 +48,28 @@ class Level:
             self.world_shift = 0
             player.speed = 8
 
-    #def horizontal_collision(self):
-        player = self.player.sprite
-
+    def horizontal_collision(self): # handles horizontal collision of the player
+        player = self.player.sprite # gets the player sprite so it doesn't have to be specifically called each time
         player.rect.x += player.direction.x * player.speed
+
+        for sprite in self.tiles.sprites(): # sets the player to the right side of whatever they collide with
+            if sprite.rect.colliderect(player.rect):
+                if player.direction.x < 0:
+                    player.rect.left = sprite.rect.right
+                elif player.direction.x > 0:
+                    player.rect.right = sprite.rect.left
+    
+    def vertical_collision(self):
+        player = self.player.sprite
+        player.apply_gravity()
+
+        # prevents the player from going up through an object or through an object below
+        for sprite in self.tiles.sprites():
+            if sprite.rect.colliderect(player.rect):
+                if player.direction.y < 0:
+                    player.rect.top = sprite.rect.bottom
+                elif player.direction.y > 0:
+                    player.rect.bottom = sprite.rect.top
 
     def draw(self): # drawing of the level
         # level tiles
@@ -60,5 +79,6 @@ class Level:
 
         # player
         self.player.update()
-        #self.horizontal_collision()
+        self.horizontal_collision()
+        self.vertical_collision()
         self.player.draw(self.display_surface)

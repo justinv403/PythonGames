@@ -37,4 +37,3 @@ class Player(pygame.sprite.Sprite):
 
     def update(self): # the second variable is not needed, so it is given a null value
         self.get_input()
-        self.apply_gravity()
