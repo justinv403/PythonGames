@@ -61,7 +61,7 @@ class Level:
                     player.rect.right = sprite.rect.left
     
 
-    def vertical_collision(self):
+    def vertical_collision(self): # handles vertical collision of the player and some gravity logic
         player = self.player.sprite
         player.apply_gravity()
 
