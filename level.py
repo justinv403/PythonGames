@@ -48,6 +48,7 @@ class Level:
             self.world_shift = 0
             player.speed = 8
 
+
     def horizontal_collision(self): # handles horizontal collision of the player
         player = self.player.sprite # gets the player sprite so it doesn't have to be specifically called each time
         player.rect.x += player.direction.x * player.speed
@@ -59,6 +60,7 @@ class Level:
                 elif player.direction.x > 0:
                     player.rect.right = sprite.rect.left
     
+
     def vertical_collision(self):
         player = self.player.sprite
         player.apply_gravity()
@@ -68,8 +70,11 @@ class Level:
             if sprite.rect.colliderect(player.rect):
                 if player.direction.y < 0:
                     player.rect.top = sprite.rect.bottom
+                    player.direction.y = 0 # fixes gettings stuck to ceilings
                 elif player.direction.y > 0:
                     player.rect.bottom = sprite.rect.top
+                    player.direction.y = 0 # fixes infinity gravity glitch on floors
+
 
     def draw(self): # drawing of the level
         # level tiles
