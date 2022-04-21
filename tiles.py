@@ -8,3 +8,6 @@ class Tile(pygame.sprite.Sprite):
         self.image = pygame.Surface((size,size)) # makes a square tile
         self.image.fill("red") # sets the color of the tile
         self.rect = self.image.get_rect(topleft = pos) # puts the tile in the right spot
+    
+    def update(self, h_shift):
+        self.rect.x += h_shift
