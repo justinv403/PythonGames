@@ -49,8 +49,8 @@ class Level:
         # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
+        self.scroll_x()
 
         # player
         self.player.update()
         self.player.draw(self.display_surface)
-        self.scroll_x()
