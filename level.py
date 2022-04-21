@@ -30,10 +30,27 @@ class Level:
                     player_sprite = Player((h_pos, v_pos))
                     self.tiles.add(player_sprite)
 
+    def scroll_x(self):
+        player = self.player.sprite
+        player_x = player.rect.centerx #FIXME: rect.centerx - "NoneType has no attribute rect"
+        direction_x = player.direction.x
+
+        if player_x < 200 and direction_x < 0:
+            self.world_shift = 8
+            player.speed = 0
+        elif player_x > 1000 and direction_x > 0:
+            self.world_shift = -8
+            player.speed = 0
+        else:
+            self.world_shift = 0
+            player.speed = 8
+
     def draw(self):
         # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
 
         # player
+        self.player.update()
         self.player.draw(self.display_surface)
+        self.scroll_x()

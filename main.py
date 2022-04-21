@@ -1,10 +1,9 @@
 import pygame, sys
 from settings import *
-from tiles import Tile
 from level import Level
 
 # sets the fps for the game
-fps = 100
+fps = 60
 
 # Pygame
 pygame.init()
