@@ -13,6 +13,14 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 0.8
         self.jump_height = -16 # vertical height is backwards
 
+    def character_assets(self):
+        character_data = "../graphics/character/"
+        self.animations = {"idle":[],"running":[],"jump":[],"falling":[]}
+
+        for animation in self.animations.keys():
+            full_path = character_data + animation
+            self.animations[animation] = import_folder(full_path)
+
     def get_input(self):
         # gets the keys pressed by the user
         keys = pygame.key.get_pressed()
