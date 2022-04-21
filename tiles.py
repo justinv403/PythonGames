@@ -1,7 +1,6 @@
 import pygame
 
 class Tile(pygame.sprite.Sprite):
-    
     def __init__(self, pos, size):
         super().__init__() # python magic
 
@@ -9,5 +8,6 @@ class Tile(pygame.sprite.Sprite):
         self.image.fill("red") # sets the color of the tile
         self.rect = self.image.get_rect(topleft = pos) # puts the tile in the right spot
     
+
     def update(self, h_shift):
         self.rect.x += h_shift

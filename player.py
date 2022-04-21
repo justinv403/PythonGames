@@ -8,9 +8,12 @@ class Player(pygame.sprite.Sprite):
         self.image.fill("white") # player color
         self.rect = self.image.get_rect(topleft = pos)
         
+        # player movement
         self.direction = pygame.math.Vector2(0,0) # 2d vector on a player's movement
         self.speed = 8 # speed multiplier for the player
-    
+        self.gravity = 0.8
+        self.jump_height = -16 # vertical height is backwards
+
     def get_input(self):
         # gets the keys pressed by the user
         keys = pygame.key.get_pressed()
@@ -22,7 +25,18 @@ class Player(pygame.sprite.Sprite):
             self.direction.x = 1
         else:
             self.direction.x = 0
+        
+        if keys[pygame.K_UP]:
+            self.jump()
+
+    def apply_gravity(self):
+        self.direction.y += self.gravity
+        self.rect.y += self.direction.y
+
+    def jump(self):
+        self.direction.y = self.jump_height
 
     def update(self, null): # the second variable is not needed, so it is given a null value
         self.get_input()
         self.rect.x += self.direction.x * self.speed
+        self.apply_gravity()

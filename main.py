@@ -17,9 +17,12 @@ while True: # rendering pipeline (keep as fast as possible)
             pygame.quit()
             sys.exit()
         
+
     screen.fill(background_color) # background color
     level.draw()
 
+
     pygame.display.update()
+ 
     
     clock.tick(fps)
