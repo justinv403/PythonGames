@@ -17,22 +17,22 @@ class Level:
         self.player = pygame.sprite.GroupSingle()
 
         # interprets the level to be displayed from the "text" file
-        for h_index,row in enumerate(layout):
-            for v_index,col in enumerate(row):
+        for row_index,row in enumerate(layout):
+            for col_index,col in enumerate(row):
                 # gets the position to place (whatever it is to be placed)
-                h_pos = v_index * tile_size
-                v_pos = h_index * tile_size
+                x = col_index * tile_size
+                y = row_index * tile_size
 
                 
                 if col == "X": # ground tile
-                    tile = Tile((h_pos, v_pos), tile_size)
+                    tile = Tile((x, y), tile_size)
                     self.tiles.add(tile)
                 if col == "P": # player spawn position
-                    player_sprite = Player((h_pos, v_pos))
-                    self.tiles.add(player_sprite)
+                    player_sprite = Player((x, y))
+                    self.player.add(player_sprite)
 
 
-    """def scroll_x(self): # horizontal level scrolling logic
+    def scroll_x(self): # horizontal level scrolling logic
         player = self.player.sprite
         player_x = player.rect.centerx #FIXME: rect.centerx - "NoneType has no attribute rect"
         direction_x = player.direction.x
@@ -45,15 +45,20 @@ class Level:
             player.speed = 0
         else:
             self.world_shift = 0
-            player.speed = 8"""
+            player.speed = 8
 
+    #def horizontal_collision(self):
+    #    player = self.player.sprite
+
+    #    player.rect.x += self.direction.x * self.speed
 
     def draw(self):
         # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
-        #self.scroll_x() # uncomment when scroling is fixed
+        self.scroll_x()
 
         # player
         self.player.update()
+        #self.horizontal_collision()
         self.player.draw(self.display_surface)

@@ -1,8 +1,7 @@
 import pygame
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        # initialization of the player
+    def __init__(self, pos): # initialization of the player
         super().__init__()
         self.image = pygame.Surface((32,64)) # must be a tuple
         self.image.fill("white") # player color
@@ -19,10 +18,10 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         
         # gives the user velocity in a direction
-        if keys[pygame.K_LEFT]:
-            self.direction.x = -1
-        elif keys[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT]:
             self.direction.x = 1
+        elif keys[pygame.K_LEFT]:
+            self.direction.x = -1
         else:
             self.direction.x = 0
         
@@ -36,7 +35,6 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
         self.direction.y = self.jump_height
 
-    def update(self, null): # the second variable is not needed, so it is given a null value
+    def update(self): # the second variable is not needed, so it is given a null value
         self.get_input()
-        self.rect.x += self.direction.x * self.speed
         self.apply_gravity()
