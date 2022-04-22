@@ -2,7 +2,7 @@ import pygame
 from support import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos): # initialization of the player
+    def __init__(self, pos, surface): # initialization of the player
         super().__init__()
         # character animation and assets
         self.character_assets()
@@ -12,6 +12,12 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations["idle"][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
         
+        # dust particles
+        self.import_dust_particles_run()
+        self.dust_frame_index = 0
+        self.dust_animation_speed = 0.15
+        self.display_surface = surface
+
         # player movement
         self.direction = pygame.math.Vector2(0,0) # 2d vector on a player's movement
         self.speed = 8 # speed multiplier for the player
@@ -26,6 +32,7 @@ class Player(pygame.sprite.Sprite):
         self.on_left = False
         self.on_right = False
 
+
     def character_assets(self):
         character_data = "./graphics/character/"
         self.animations = {"idle":[],"running":[],"jump":[],"falling":[]}
@@ -34,7 +41,11 @@ class Player(pygame.sprite.Sprite):
             full_path = character_data + animation
             self.animations[animation] = import_folder(full_path)
 
-    def animate(self):
+
+    def import_dust_particles_run(self):
+        self.dust_particles_run = import_folder("./graphics/character/dust_particles/run")
+
+    def animate(self): # animation logic
         animation = self.animations[self.status]
 
         # loop over frame index
@@ -64,6 +75,25 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(topleft = self.rect.topleft)
         elif self.on_ceiling:
             self.rect = self.image.get_rect(midtop = self.rect.midtop)
+
+    
+    def run_dust_animate(self): # renders the dust particles from player run if the player is running and on the ground
+        if self.status == "running" and self.on_ground:
+            self.dust_frame_index += self.dust_animation_speed
+            if self.dust_frame_index >= len(self.dust_particles_run):
+                self.dust_frame_index = 0
+            
+            dust_particle = self.dust_particles_run[int(self.dust_frame_index)]
+
+            if self.facing_right:
+                pos = self.rect.bottomleft - pygame.math.Vector2(6,10)
+                self.display_surface.blit(dust_particle,pos)
+            elif not self.facing_right:
+                pos = self.rect.bottomright - pygame.math.Vector2(6,10)
+                flipped_dust = pygame.transform.flip(dust_particle,True,False)
+                self.display_surface.blit(flipped_dust,pos)
+
+
 
 
     def get_input(self):
@@ -105,3 +135,4 @@ class Player(pygame.sprite.Sprite):
         self.get_input()
         self.get_status()
         self.animate()
+        self.run_dust_animate()

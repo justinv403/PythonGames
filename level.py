@@ -29,7 +29,7 @@ class Level:
                     tile = Tile((x, y), tile_size)
                     self.tiles.add(tile)
                 if col == "P": # player spawn position
-                    player_sprite = Player((x, y))
+                    player_sprite = Player((x, y), self.display_surface)
                     self.player.add(player_sprite)
 
 
@@ -93,7 +93,7 @@ class Level:
         # checks for ground and ceiling contact (helps animation quality)
         if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
             player.on_ground = False
-        if player.on_ceiling and player.direction.y < 0:
+        if player.on_ceiling and player.direction.y > 0:
             player.on_ceiling = False
 
 
