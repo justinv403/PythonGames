@@ -4,8 +4,12 @@ from support import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos): # initialization of the player
         super().__init__()
-        self.image = pygame.Surface((32,64)) # must be a tuple
-        self.image.fill("white") # player color
+        # character animation and assets
+        self.character_assets()
+        self.frame_index = 0
+        self.animation_speed = 0.15
+
+        self.image = self.animations["idle"][self.frame_index] #FIXME: Index out of range
         self.rect = self.image.get_rect(topleft = pos)
         
         # player movement
