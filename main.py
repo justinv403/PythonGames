@@ -4,7 +4,7 @@ from level import Level
 
 # sets the fps for the game
 # anything below 60 is not recommended - game speed is tied to fps
-fps = 10
+fps = 60
 
 # Pygame
 pygame.init()

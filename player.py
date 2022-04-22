@@ -7,7 +7,7 @@ class Player(pygame.sprite.Sprite):
         # character animation and assets
         self.character_assets()
         self.frame_index = 0
-        self.animation_speed = 0.3
+        self.animation_speed = 0.15
 
         self.image = self.animations["idle"][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
@@ -48,6 +48,14 @@ class Player(pygame.sprite.Sprite):
         else:
             flipped_image = pygame.transform.flip(image,True,False)
             self.image = flipped_image
+        
+        # set the rectangle positions
+        if self.on_ground:
+            self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
+        elif self.on_ceiling:
+            self.rect = self.image.get_rect(midtop = self.rect.midtop)
+        else:
+            self.rect = self.image.get_rect(center = self.rect.center)
 
 
     def get_input(self):
@@ -64,7 +72,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
         
-        if keys[pygame.K_UP] or keys[pygame.K_SPACE] or keys[pygame.K_w]:
+        if (keys[pygame.K_UP] or keys[pygame.K_SPACE] or keys[pygame.K_w]) and self.on_ground:
             self.jump()
 
     def get_status(self):
@@ -73,7 +81,7 @@ class Player(pygame.sprite.Sprite):
         elif self.direction.y > 1:
             self.status = "falling"
         else:
-            if self.direction.x != 0:
+            if self.direction.x > 0 or self.direction.x < 0:
                 self.status = "running"
             else:
                 self.status = "idle"

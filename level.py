@@ -71,9 +71,17 @@ class Level:
                 if player.direction.y < 0:
                     player.rect.top = sprite.rect.bottom
                     player.direction.y = 0 # fixes gettings stuck to ceilings
+                    player.on_ceiling = True
                 elif player.direction.y > 0:
                     player.rect.bottom = sprite.rect.top
                     player.direction.y = 0 # fixes infinity gravity glitch on floors
+                    player.on_ground = True
+        
+        # checks for ground and ceiling contact (helps animation quality)
+        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+            player.on_ground = False
+        if player.on_ceiling and player.direction.y > 0:
+            player.on_ceiling = False
 
 
     def draw(self): # drawing of the level
