@@ -7,7 +7,7 @@ class Player(pygame.sprite.Sprite):
         # character animation and assets
         self.character_assets()
         self.frame_index = 0
-        self.animation_speed = 0.15
+        self.animation_speed = 0.3
 
         self.image = self.animations["idle"][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
@@ -20,6 +20,11 @@ class Player(pygame.sprite.Sprite):
 
         # player state
         self.status = "idle"
+        self.facing_right = True
+        self.on_ground = False
+        self.on_ceiling = False
+        self.on_left = False
+        self.on_right = False
 
     def character_assets(self):
         character_data = "./graphics/character/"
@@ -36,8 +41,14 @@ class Player(pygame.sprite.Sprite):
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0
-        
-        self.image = animation[int(self.frame_index)]
+
+        image = animation[int(self.frame_index)]
+        if self.facing_right:
+            self.image = image
+        else:
+            flipped_image = pygame.transform.flip(image,True,False)
+            self.image = flipped_image
+
 
     def get_input(self):
         # gets the keys pressed by the user
@@ -46,8 +57,10 @@ class Player(pygame.sprite.Sprite):
         # gives the user velocity in a direction
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.direction.x = 1
+            self.facing_right = True
         elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.direction.x = -1
+            self.facing_right = False
         else:
             self.direction.x = 0
         
@@ -57,7 +70,7 @@ class Player(pygame.sprite.Sprite):
     def get_status(self):
         if self.direction.y < 0:
             self.status = "jump"
-        elif self.direction.y > 0:
+        elif self.direction.y > 1:
             self.status = "falling"
         else:
             if self.direction.x != 0:
