@@ -1,14 +1,17 @@
 level_map = [
-"                               ",
-"                               ",
-"                               ",
-"                               ",
-"   P                    XXXXX  ",
-"  XXXXX        XX   XX         ",
-"                               ",
-"         X  X    XXX           ",
-"       XXX  XXX                ",
-"XXXXXXXXXX  XXXXXXXXXXX  XXXX  ", #10 height
+"                                   ",
+"                                   ",
+"                                   ",
+"                                   ",
+"                                   ",
+"                                   ",
+"                                   ",
+"   P                    XXXXX      ",
+"  XXXXX        XX   XX             ",
+"                                   ",
+"         X  X    XXX               ",
+"       XXX  XXX                    ",
+"XXXXXXXXXX  XXXXXXXXXXX  XXXXXXXX  ", #10 height
 ]
 
 # resolution and tile width/size settings
