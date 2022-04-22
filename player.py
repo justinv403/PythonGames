@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
         self.animation_speed = 0.15
 
-        self.image = self.animations["idle"][self.frame_index] #FIXME: Index out of range
+        self.image = self.animations["idle"][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
         
         # player movement
@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_height = -16 # vertical height is backwards
 
     def character_assets(self):
-        character_data = "../graphics/character/"
+        character_data = "./graphics/character/"
         self.animations = {"idle":[],"running":[],"jump":[],"falling":[]}
 
         for animation in self.animations.keys():
