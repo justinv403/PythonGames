@@ -17,6 +17,10 @@ class Level:
         self.dust_sprite = pygame.sprite.GroupSingle()
 
     def create_jump_particles(self, pos):
+        if self.player.sprite.facing_right: # offset for the jump particles to look better
+            pos -= pygame.math.Vector2(10, 5)
+        else:
+            pos += pygame.math.Vector2(10, -5)
         jump_particle_sprite = ParticleEffect(pos, "jump")
         self.dust_sprite.add(jump_particle_sprite)
 
