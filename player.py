@@ -7,7 +7,7 @@ class Player(pygame.sprite.Sprite):
         # character animation and assets
         self.character_assets()
         self.frame_index = 0
-        self.animation_speed = 0.5
+        self.animation_speed = 0.7
 
         self.image = self.animations["idle"][self.frame_index]
         self.image = pygame.transform.scale(self.image, (154/4.5,278/4.5))
