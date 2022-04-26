@@ -7,9 +7,10 @@ class Player(pygame.sprite.Sprite):
         # character animation and assets
         self.character_assets()
         self.frame_index = 0
-        self.animation_speed = 0.15
+        self.animation_speed = 0.5
 
         self.image = self.animations["idle"][self.frame_index]
+        self.image = pygame.transform.scale(self.image, (154/4.5,278/4.5))
         self.rect = self.image.get_rect(topleft = pos)
         
         # dust particles
@@ -22,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         # player movement
         self.direction = pygame.math.Vector2(0,0) # 2d vector on a player's movement
         self.speed = 8 # speed multiplier for the player
-        self.gravity = 0.8
+        self.gravity = .8
         self.jump_height = -16 # vertical height is backwards
 
         # player state
@@ -55,6 +56,7 @@ class Player(pygame.sprite.Sprite):
             self.frame_index = 0
 
         image = animation[int(self.frame_index)]
+        image = pygame.transform.scale(image,(154/4.5,278/4.5))
         if self.facing_right:
             self.image = image
         else:
