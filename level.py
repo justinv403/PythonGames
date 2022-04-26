@@ -1,4 +1,6 @@
+from functools import partial
 import pygame
+from particles import ParticleEffect
 from tiles import Tile
 from settings import tile_size, screen_width
 from player import Player
@@ -10,6 +12,13 @@ class Level:
         self.create_level(level_data)
         self.world_shift = 0 # player movement
         self.current_x = 0
+
+        # dust particle
+        self.dust_sprite = pygame.sprite.GroupSingle()
+
+    def create_jump_particles(self, pos):
+        jump_particle_sprite = ParticleEffect(pos, "jump")
+        self.dust_sprite.add(jump_particle_sprite)
 
 
     def create_level(self, layout):
@@ -29,7 +38,7 @@ class Level:
                     tile = Tile((x, y), tile_size)
                     self.tiles.add(tile)
                 if col == "P": # player spawn position
-                    player_sprite = Player((x, y), self.display_surface)
+                    player_sprite = Player((x, y), self.display_surface, self.create_jump_particles)
                     self.player.add(player_sprite)
 
 
@@ -72,7 +81,6 @@ class Level:
         if player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
             player.on_right = False
 
-    
 
     def vertical_collision(self): # handles vertical collision of the player and some gravity logic
         player = self.player.sprite
@@ -98,6 +106,14 @@ class Level:
 
 
     def draw(self): # drawing of the level
+        
+        # The order that these are done is VERY important -
+        # objects rendered after will be infront, and those rendered before will be behind
+        
+        # dust particles
+        self.dust_sprite.update(self.world_shift)
+        self.dust_sprite.draw(self.display_surface)
+        
         # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
