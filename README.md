@@ -8,5 +8,6 @@ Created based upon the guide by Clear Code on Youtube
 https://www.youtube.com/watch?v=YWN8GcmJ-jA&t=2229s
 
 Level editor provided by Tiled (https://www.mapeditor.org/)
+Mossy Cavern Assets and Sprites provided by Maaot (https://maaot.itch.io/mossy-cavern)
 
 Movement is either with WASD, Spacebar, or arrow keys
