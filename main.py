@@ -4,11 +4,13 @@ from level import Level
 
 # sets the fps for the game
 # anything other than 60 is not recommended - game speed is tied to fps
+window_size = (screen_width, screen_height)
 fps = 60
 
 # Pygame
 pygame.init()
-screen = pygame.display.set_mode((screen_width, screen_height))
+screen = pygame.display.set_mode(window_size)
+pygame.display.set_caption("Wizard Quest")
 clock = pygame.time.Clock() # sets the game clock
 level = Level(level_map, screen)
 

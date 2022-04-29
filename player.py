@@ -7,9 +7,10 @@ class Player(pygame.sprite.Sprite):
         # character animation and assets
         self.character_assets()
         self.frame_index = 0
-        self.animation_speed = 0.15
+        self.animation_speed = 0.4
 
         self.image = self.animations["idle"][self.frame_index]
+        self.image = pygame.transform.scale(self.image, (154/4.5,278/4.5))
         self.rect = self.image.get_rect(topleft = pos)
         
         # dust particles
@@ -22,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         # player movement
         self.direction = pygame.math.Vector2(0,0) # 2d vector on a player's movement
         self.speed = 8 # speed multiplier for the player
-        self.gravity = 0.8
+        self.gravity = .8
         self.jump_height = -16 # vertical height is backwards
 
         # player state
@@ -46,6 +47,7 @@ class Player(pygame.sprite.Sprite):
     def import_dust_particles_run(self):
         self.dust_particles_run = import_folder("./graphics/character/dust_particles/run")
 
+
     def animate(self): # animation logic
         animation = self.animations[self.status]
 
@@ -55,6 +57,7 @@ class Player(pygame.sprite.Sprite):
             self.frame_index = 0
 
         image = animation[int(self.frame_index)]
+        image = pygame.transform.scale(image,(154/4.5,278/4.5))
         if self.facing_right:
             self.image = image
         else:
@@ -113,10 +116,11 @@ class Player(pygame.sprite.Sprite):
             self.jump()
             self.create_jump_particles(self.rect.midbottom)
 
+
     def get_status(self):
         if self.direction.y < 0:
             self.status = "jump"
-        elif self.direction.y > 1:
+        elif self.direction.y > 1 or self.on_ground == False:
             self.status = "falling"
         else:
             if self.direction.x > 0 or self.direction.x < 0:
@@ -124,14 +128,17 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.status = "idle"
 
+
     def apply_gravity(self):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
 
+
     def jump(self):
         self.direction.y = self.jump_height
 
-    def update(self): # the second variable is not needed, so it is given a null value
+
+    def update(self):
         self.get_input()
         self.get_status()
         self.animate()

@@ -16,6 +16,6 @@ level_map = [
 
 # resolution and tile width/size settings
 tile_size = 64
-screen_width = 1200
+screen_width = 1920
 screen_height = len(level_map)*tile_size
-background_color = "black"
+background_color = "white"
