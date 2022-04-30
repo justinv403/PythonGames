@@ -103,7 +103,10 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         
         # gives the user velocity in a direction
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
+            self.direction.x = 0
+            self.facing_right = self.facing_right
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.direction.x = 1
             self.facing_right = True
         elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
