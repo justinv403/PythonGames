@@ -1,13 +1,11 @@
 import pygame
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, pos, size):
-        super().__init__() # python magic
-
-        self.image = pygame.Surface((size,size)) # makes a square tile
-        self.image.fill("red") # sets the color of the tile
-        self.rect = self.image.get_rect(topleft = pos) # puts the tile in the right spot
+    def __init__(self, size, x, y):
+        super().__init__()
+        self.image = pygame.Surface((size, size))
+        self.image.fill("dark blue")
+        self.rect = self.image.get_rect(topleft = (x,y))
     
-
-    def update(self, h_shift):
-        self.rect.x += h_shift
+    def update(self, shift):
+        self.rect.x += shift
