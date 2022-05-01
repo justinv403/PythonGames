@@ -1,6 +1,7 @@
 import pygame, sys
 from settings import *
 from level import Level
+from game_data import level_1
 
 # sets the fps for the game
 # anything other than 60 is not recommended - game speed is tied to fps
@@ -12,7 +13,7 @@ pygame.init()
 screen = pygame.display.set_mode(window_size)
 pygame.display.set_caption("Wizard Quest")
 clock = pygame.time.Clock() # sets the game clock
-level = Level(level_map, screen)
+level = Level(level_1, screen)
 
 while True: # rendering pipeline (keep as fast as possible)
     for event in pygame.event.get():
@@ -22,8 +23,7 @@ while True: # rendering pipeline (keep as fast as possible)
         
 
     screen.fill(background_color) # background color
-    level.draw()
-
+    level.run()
 
     pygame.display.update()
  
