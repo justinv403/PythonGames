@@ -26,7 +26,7 @@ class Player(pygame.sprite.Sprite):
         # player movement
         self.direction = pygame.math.Vector2(0,0) # 2d vector on a player's movement
         self.speed = 8 # speed multiplier for the player
-        self.gravity = .8
+        self.gravity = 0.8
         self.jump_height = -16 # vertical height is backwards
 
         # player state

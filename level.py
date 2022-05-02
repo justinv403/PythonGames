@@ -99,7 +99,7 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size - (3*tile_size)
                 if val != "0": # csv is in terms of strings
-                    sprite = Player((x,y), self.display_surface, self.create_jump_particles)
+                    sprite = Player((128,y), self.display_surface, self.create_jump_particles) #FIXME: player spawn position should be automatic, instead of manually adding 128 it should be x
                     self.player.add(sprite)
                     pass
                 if val != "1": # csv is in terms of strings

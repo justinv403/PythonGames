@@ -2,8 +2,6 @@ from settings import vertical_tile_number, tile_size, screen_width
 import pygame
 from tiles import AnimatedTile
 
-from tiles import AnimatedTile
-
 class Skybox:
     def __init__(self, horizon):
         self.top = pygame.image.load("./graphics/decoration/sky_box/top.png")
