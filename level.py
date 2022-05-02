@@ -24,8 +24,6 @@ class Level:
     
         # enemy
         enemy_layout = import_csv_layout(level_data["enemies"])
-        self.constraint_sprites.update(self.world_shift)
-        self.enemy_collision_reverse()
         self.enemy_sprites = self.create_tile_group(enemy_layout, "enemies")
 
         # constraints 
@@ -65,7 +63,7 @@ class Level:
                     if type == "enemies":
                         sprite = Enemy(tile_size, x, y)
 
-                    if type == "constraints":
+                    if type == "constraint":
                         sprite = Tile(tile_size, x, y)
 
                     sprite_group.add(sprite)
@@ -97,4 +95,6 @@ class Level:
 
         # enemy sprites
         self.enemy_sprites.update(self.world_shift)
+        self.constraint_sprites.update(self.world_shift)
+        self.enemy_collision_reverse()
         self.enemy_sprites.draw(self.display_surface)
