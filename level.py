@@ -2,6 +2,7 @@ import pygame
 from support import import_csv_layout, import_cut_graphic
 from settings import tile_size
 from tiles import AnimatedTile, Tile, StaticTile, Coin
+from enemy import Enemy
 
 class Level:
     def __init__(self, level_data, surface):
@@ -21,7 +22,26 @@ class Level:
         coin_layout = import_csv_layout(level_data["coins"])
         self.coin_sprites = self.create_tile_group(coin_layout, "coins")
     
+        # enemy
+        enemy_layout = import_csv_layout(level_data["enemies"])
+        self.constraint_sprites.update(self.world_shift)
+        self.enemy_collision_reverse()
+        self.enemy_sprites = self.create_tile_group(enemy_layout, "enemies")
+
+        # constraints 
+        # hidden constraint boxes for enemy movement
+        constraint_layout = import_csv_layout(level_data["constraints"])
+        self.constraint_sprites = self.create_tile_group(constraint_layout, "constraint")
+
+
     def create_tile_group(self, layout, type):
+        """
+        Creates a tile group to render
+        
+        :param1 layout: list from the csv interpreter (import_csv_layout) for each group
+        :param2 type: string containing the name of the type of sprite group to create
+        """
+        
         sprite_group = pygame.sprite.Group()
 
         for row_index, row in enumerate(layout):
@@ -42,12 +62,25 @@ class Level:
                         #if val == "1": FIXME: Error out of range for silver coins
                         #    sprite = Coin(tile_size, x, y, "./grahpics/coins/silver/anim")
                     
+                    if type == "enemies":
+                        sprite = Enemy(tile_size, x, y)
+
+                    if type == "constraints":
+                        sprite = Tile(tile_size, x, y)
+
                     sprite_group.add(sprite)
 
         return sprite_group
 
 
-    
+    def enemy_collision_reverse(self):
+        """
+        Flips the enemy direction if they collide with a constraint
+        """
+        for enemy in self.enemy_sprites.sprites():
+            if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False): # false means it doesn't destroy the constraint
+                enemy.reverse()
+
     def run(self):
         """
         Runs the entire game/level
@@ -61,3 +94,7 @@ class Level:
         # coin sprites
         self.coin_sprites.update(self.world_shift)
         self.coin_sprites.draw(self.display_surface)
+
+        # enemy sprites
+        self.enemy_sprites.update(self.world_shift)
+        self.enemy_sprites.draw(self.display_surface)

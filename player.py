@@ -136,6 +136,10 @@ class Player(pygame.sprite.Sprite):
 
 
     def get_status(self):
+        """
+        gets the status of the player
+        e.g. falling, jumping, idle
+        """
         if self.direction.y < 0:
             self.status = "jump"
         elif self.direction.y > 1 or self.on_ground == False:
@@ -148,6 +152,9 @@ class Player(pygame.sprite.Sprite):
 
 
     def apply_gravity(self):
+        """
+        Gives the player gravity
+        """
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
 
@@ -160,6 +167,9 @@ class Player(pygame.sprite.Sprite):
 
 
     def update(self):
+        """
+        Updates the player object
+        """
         self.get_input()
         self.get_status()
         self.animate()
