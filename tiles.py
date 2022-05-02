@@ -42,10 +42,10 @@ class AnimatedTile(Tile):
         anim_speed = 0.15
         
         self.frame_index += anim_speed
-        if self.frame_index > len(self.frames):
-            self.frame_index = 1
+        if self.frame_index >= len(self.frames):
+            self.frame_index = 0
         self.image = self.frames[int(self.frame_index)]
-        self.image = pygame.transform.scale(self.image, (376/4,256/4))
+        #self.image = pygame.transform.scale(self.image, (376/4,256/4))
     
     def update(self, shift):
         self.animate()
