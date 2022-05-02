@@ -51,7 +51,7 @@ def import_cut_graphic(path):
         for col in range(tile_num_x):
             x = col * tile_size
             y = row * tile_size
-            new_surf = pygame.Surface((tile_size, tile_size))
+            new_surf = pygame.Surface((tile_size, tile_size), flags=pygame.SRCALPHA)
             new_surf.blit(surface, (0,0), pygame.Rect(x, y, tile_size, tile_size)) # finds the correct part of the image to get
             cut_tiles.append(new_surf)
 

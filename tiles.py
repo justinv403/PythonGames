@@ -2,6 +2,11 @@ import pygame
 from support import import_folder
 
 class Tile(pygame.sprite.Sprite):
+    """
+    Main Tile class to create each subsequent tile type
+
+    :param1 pygame.sprite.Sprite: takes pygame sprite as inheritance
+    """
     def __init__(self, size, x, y):
         super().__init__()
         self.image = pygame.Surface((size, size))
@@ -10,6 +15,7 @@ class Tile(pygame.sprite.Sprite):
     def update(self, shift):
         self.rect.x += shift
 
+
 class StaticTile(Tile):
     """
     Inherits a lot of info from Tile class, but saves resources
@@ -17,8 +23,15 @@ class StaticTile(Tile):
     def __init__(self, size, x, y, surface):
         super().__init__(size, x, y)
         self.image = surface
-    
+
+
 class AnimatedTile(Tile):
+    """
+    Important to create a animated tile
+    Use inheritance and super() to create a new type if necessary
+
+    :param1 Tile: takes inheritance from the Tile class
+    """
     def __init__(self, size, x, y, path):
         super().__init__(size,x,y)
         self.frames = import_folder(path)
@@ -37,7 +50,11 @@ class AnimatedTile(Tile):
         self.animate()
         self.rect.x += shift
 
+
 class Coin(AnimatedTile):
+    """
+    Creates the "Coin" animated tile type
+    """
     def __init__(self, size, x, y, path):
         super().__init__(size, x, y, path)
         center_x = x + int(size / 2)

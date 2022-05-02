@@ -112,7 +112,8 @@ class Player(pygame.sprite.Sprite):
 
     def get_input(self):
         """
-        gets the keys pressed by the user
+        gets the keys pressed by the user, also has some logic 
+        to apply directional movement
         """
         keys = pygame.key.get_pressed()
         

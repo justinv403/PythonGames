@@ -37,7 +37,10 @@ class Level:
                         sprite = StaticTile(tile_size, x, y, tile_surface)
                     
                     if type == "coins":
-                        sprite = Coin(tile_size, x, y, "./graphics/coins/anim")
+                        if val == "0":
+                            sprite = Coin(tile_size, x, y, "./graphics/coins/gold/anim")
+                        #if val == "1": FIXME: Error out of range for silver coins
+                        #    sprite = Coin(tile_size, x, y, "./grahpics/coins/silver/anim")
                     
                     sprite_group.add(sprite)
 
@@ -46,6 +49,11 @@ class Level:
 
     
     def run(self):
+        """
+        Runs the entire game/level
+        Rendering order - things rendered after render on top
+        """
+
         # terrain sprites
         self.terrain_sprites.update(self.world_shift)
         self.terrain_sprites.draw(self.display_surface)
