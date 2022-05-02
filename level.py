@@ -12,7 +12,13 @@ class Level:
         
         # general setup
         self.display_surface = surface
-        self.world_shift = 0
+        self.world_shift = -9
+
+        # player setup
+        player_layout = import_csv_layout(level_data["player"])
+        self.player = pygame.sprite.GroupSingle()
+        self.goal = pygame.sprite.GroupSingle()
+        self.player_setup(player_layout)
 
         # terrain setup
         terrain_layout = import_csv_layout(level_data["terrain"])
@@ -70,6 +76,24 @@ class Level:
 
         return sprite_group
 
+    
+    def player_setup(self, layout):
+        """
+        Sets up the player
+        """
+        for row_index, row in enumerate(layout):
+            for col_index, val in enumerate(row):
+                x = col_index * tile_size
+                y = row_index * tile_size - (3*tile_size)
+                if val != "0": # csv is in terms of strings
+                    pass
+                    print("player goes here")
+                if val != "1": # csv is in terms of strings
+                    hat_surface = pygame.image.load("./graphics/character/hat/wizhat-blue-72x72-2.png")
+                    hat_surface = pygame.transform.scale(hat_surface, (48,48)).convert_alpha()
+                    sprite = StaticTile(tile_size, x+8, y+8, hat_surface)
+                    self.goal.add(sprite)
+
 
     def enemy_collision_reverse(self):
         """
@@ -78,6 +102,7 @@ class Level:
         for enemy in self.enemy_sprites.sprites():
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False): # false means it doesn't destroy the constraint
                 enemy.reverse()
+
 
     def run(self):
         """
@@ -98,3 +123,7 @@ class Level:
         self.constraint_sprites.update(self.world_shift)
         self.enemy_collision_reverse()
         self.enemy_sprites.draw(self.display_surface)
+
+        # player sprites
+        self.goal.update(self.world_shift)
+        self.goal.draw(self.display_surface)
