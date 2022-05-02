@@ -1,10 +1,10 @@
 import pygame
 from decoration import Skybox
 from support import import_csv_layout, import_cut_graphic
-from settings import tile_size
+from settings import tile_size, screen_height
 from tiles import AnimatedTile, Tile, StaticTile, Coin
 from enemy import Enemy
-from decoration import Skybox
+from decoration import Skybox, Water
 
 class Level:
     def __init__(self, level_data, surface):
@@ -41,6 +41,9 @@ class Level:
 
         # decoration
         self.sky_box = Skybox(8)
+        level_width = len(terrain_layout[0]) * tile_size
+        self.water = Water(screen_height - 40, level_width)
+
 
     def create_tile_group(self, layout, type):
         """
@@ -113,12 +116,8 @@ class Level:
         Runs the entire game/level
         Rendering order - things rendered after render on top
         """
-        # decoration
+        # skybox
         self.sky_box.draw(self.display_surface)
-        
-        # terrain sprites
-        self.terrain_sprites.update(self.world_shift)
-        self.terrain_sprites.draw(self.display_surface)
         
         # coin sprites
         self.coin_sprites.update(self.world_shift)
@@ -133,3 +132,10 @@ class Level:
         # player sprites
         self.goal.update(self.world_shift)
         self.goal.draw(self.display_surface)
+
+        # water
+        self.water.draw(self.display_surface, self.world_shift)
+        
+        # terrain sprites
+        self.terrain_sprites.update(self.world_shift)
+        self.terrain_sprites.draw(self.display_surface)
