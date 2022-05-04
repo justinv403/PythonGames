@@ -8,4 +8,4 @@ screen_height = vertical_tile_number * tile_size
 # screen width (in pixels)
 screen_width = 1600
 
-background_color = "white"
+background_color = "black"

@@ -17,7 +17,7 @@ level = Level(level_1, screen)
 
 while True: # rendering pipeline (keep as fast as possible)
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT: # handles quitting of the game (user presses the x)
             pygame.quit()
             sys.exit()
         
