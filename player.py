@@ -2,7 +2,10 @@ import pygame
 from support import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, surface, create_jump_particles): # initialization of the player
+    def __init__(self, pos, surface, create_jump_particles):
+        """
+        initialization of the player
+        """
         super().__init__()
         # character animation and assets
         self.character_assets()
@@ -23,7 +26,7 @@ class Player(pygame.sprite.Sprite):
         # player movement
         self.direction = pygame.math.Vector2(0,0) # 2d vector on a player's movement
         self.speed = 8 # speed multiplier for the player
-        self.gravity = .8
+        self.gravity = 0.8
         self.jump_height = -16 # vertical height is backwards
 
         # player state
@@ -36,6 +39,9 @@ class Player(pygame.sprite.Sprite):
 
 
     def character_assets(self):
+        """
+        Gets the character animation assets
+        """
         character_data = "./graphics/character/"
         self.animations = {"idle":[],"running":[],"jump":[],"falling":[]}
 
@@ -48,7 +54,10 @@ class Player(pygame.sprite.Sprite):
         self.dust_particles_run = import_folder("./graphics/character/dust_particles/run")
 
 
-    def animate(self): # animation logic
+    def animate(self):
+        """
+        Handles animation logic for the player
+        """
         animation = self.animations[self.status]
 
         # loop over frame index
@@ -82,6 +91,9 @@ class Player(pygame.sprite.Sprite):
 
     
     def run_dust_animate(self): # renders the dust particles from player run if the player is running and on the ground
+        """
+        Handles DUST animation logic for the player
+        """
         if self.status == "running" and self.on_ground:
             self.dust_frame_index += self.dust_animation_speed
             if self.dust_frame_index >= len(self.dust_particles_run):
@@ -99,11 +111,17 @@ class Player(pygame.sprite.Sprite):
 
 
     def get_input(self):
-        # gets the keys pressed by the user
+        """
+        gets the keys pressed by the user, also has some logic 
+        to apply directional movement
+        """
         keys = pygame.key.get_pressed()
         
         # gives the user velocity in a direction
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
+            self.direction.x = 0
+            self.facing_right = self.facing_right
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.direction.x = 1
             self.facing_right = True
         elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -118,9 +136,13 @@ class Player(pygame.sprite.Sprite):
 
 
     def get_status(self):
+        """
+        gets the status of the player
+        e.g. falling, jumping, idle
+        """
         if self.direction.y < 0:
             self.status = "jump"
-        elif self.direction.y > 1 or self.on_ground == False:
+        elif self.direction.y > 1:
             self.status = "falling"
         else:
             if self.direction.x > 0 or self.direction.x < 0:
@@ -130,15 +152,24 @@ class Player(pygame.sprite.Sprite):
 
 
     def apply_gravity(self):
+        """
+        Gives the player gravity
+        """
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
 
 
     def jump(self):
+        """
+        Jumping for the player
+        """
         self.direction.y = self.jump_height
 
 
     def update(self):
+        """
+        Updates the player object
+        """
         self.get_input()
         self.get_status()
         self.animate()
