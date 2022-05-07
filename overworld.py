@@ -21,14 +21,38 @@ class Node(pygame.sprite.Sprite):
         # also sizes the rectangle to the exact size needed for the specific speed of the player icon
         self.detection_zone = pygame.Rect(self.rect.centerx - (icon_speed/2), self.rect.centery - (icon_speed/2), icon_speed, icon_speed)
 
+    def animate(self):
+        """
+        Applies animation to overworld
+        """
+        self.frame_index += 0.15
+        if self.frame_index >= len(self.frames):
+            self.frame_index = 0
+        self.image = self.frames[int(self.frame_index)]
+
+    def update(self):
+        if self.status == "available":
+            self.animate()
+        else:
+            tint_surf = self.image.copy()
+            tint_surf.fill("black", None, pygame.BLEND_RGBA_MULT)
+            self.image.blit(tint_surf, (0,0))
+
+
 class Icon(pygame.sprite.Sprite):
     def __init__(self, pos):
+        """
+        Initializes the Icon object
+        """
         super().__init__() # python magic
         self.pos = pos
         self.image = pygame.image.load("./graphics/overworld/hat.png").convert_alpha()
         self.rect = self.image.get_rect(center = pos)
 
     def update(self):
+        """
+        Updates the icon object
+        """
         self.rect.center = self.pos # fixes for rectangles only being able to use ints
 
 
@@ -67,20 +91,31 @@ class Overworld:
                 sprite_node = Node(node["node_pos"], "locked", self.speed, node["node_graphics"])
             self.nodes.add(sprite_node)
     
+
     def paths(self):
+        """
+        Draws the paths between the overworld levels
+        """
         if self.max_level > 0:
             points = [node["node_pos"] for index, node in enumerate(levels.values()) if index <= self.max_level]
             
             # this uses the line width and color settings recommended by the tutorial (README)
             pygame.draw.lines(self.display_surface, "#a04f45", False, points, 6)
         
+
     def setup_icon(self):
+        """
+        Prepares a icon as a sprite
+        """
         self.icon = pygame.sprite.GroupSingle()
         icon_sprite = Icon(self.nodes.sprites()[self.current_level].rect.center)
         self.icon.add(icon_sprite)
 
 
     def input(self):
+        """
+        Gets the user input for the overworld screen
+        """
         keys = pygame.key.get_pressed()
 
         if not self.moving:
@@ -121,6 +156,7 @@ class Overworld:
         self.input()
         self.update_icon()
         self.icon.update()
+        self.nodes.update()
         
         self.skybox.draw(self.display_surface)
         

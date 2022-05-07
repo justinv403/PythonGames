@@ -18,6 +18,7 @@ class Tile(pygame.sprite.Sprite):
 
 class StaticTile(Tile):
     """
+    Handles all types of static tiles (inherited)
     Inherits a lot of info from Tile class, but saves resources
     """
     def __init__(self, size, x, y, surface):
@@ -33,7 +34,7 @@ class AnimatedTile(Tile):
     :param1 Tile: takes inheritance from the Tile class
     """
     def __init__(self, size, x, y, path):
-        super().__init__(size,x,y)
+        super().__init__(size, x, y)
         self.frames = import_folder(path)
         self.frame_index = 0
         self.image = self.frames[self.frame_index]

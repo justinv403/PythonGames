@@ -73,8 +73,10 @@ class Level:
                         sprite = StaticTile(tile_size, x, y, tile_surface)
                     
                     if type == "coins":
-                        if val == "0": sprite = Coin(tile_size, x, y, "./graphics/coins/gold/anim", 5)
-                        #if val == "1": sprite = Coin(tile_size, x, y, "./graphics/coins/silver/anim", 1) FIXME: silver coins not working
+                        if val == "0": 
+                            sprite = Coin(tile_size, x, y, "./graphics/coins/gold/anim", 5)
+                        if val == "1": 
+                            sprite = Coin(tile_size, x, y, "./graphics/coins/silver/anim", 1) #FIXME: silver coins not working
 
                     if type == "enemies":
                         sprite = Enemy(tile_size, x, y)
@@ -98,6 +100,7 @@ class Level:
                     hat_surface = pygame.image.load("./graphics/character/hat.png").convert_alpha()
                     sprite = StaticTile(tile_size, x, y, hat_surface)
                     self.goal.add(sprite)
+    
     
     def enemy_collision_reverse(self):
         """

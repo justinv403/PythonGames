@@ -26,7 +26,7 @@ class Game:
             self.max_level = new_max_level
         self.overworld = Overworld(current_level, self.max_level, screen, self.create_level)
         self.status = "overworld"
-    
+
     def create_level(self, current_level):
         self.level = Level(current_level + 1, screen, self.create_overworld, self.change_coins, self.change_health)
         self.status = "level"
@@ -36,6 +36,14 @@ class Game:
 
     def change_health(self, amount):
         self.cur_health += amount
+    
+    def check_game_over(self):
+        if self.cur_health <= 0:
+            self.cur_health = 100
+            self.coins = 0
+            self.max_level = 0
+            self.overworld = Overworld(0, self.max_level, screen, self.create_level)
+            self.status = "overworld"
 
     def run(self):
         if self.status == "overworld":
@@ -68,7 +76,7 @@ while True: # rendering pipeline (keep as fast as possible)
     screen.fill(background_color) # background color
     game.run()
 
+
     pygame.display.update()
  
-    
     clock.tick(fps)
