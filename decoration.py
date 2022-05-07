@@ -1,12 +1,14 @@
 from settings import vertical_tile_number, tile_size, screen_width
 import pygame
 from tiles import AnimatedTile
+from support import import_folder
+from random import choice, randint
 
 class Skybox:
-    def __init__(self, horizon):
-        self.top = pygame.image.load("./graphics/decoration/sky_box/top.png")
-        self.middle = pygame.image.load("./graphics/decoration/sky_box/middle.png")
-        self.bottom = pygame.image.load("./graphics/decoration/sky_box/bottom.png")
+    def __init__(self, horizon, style = "level"):
+        self.top = pygame.image.load("./graphics/decoration/sky_box/top.png").convert()
+        self.middle = pygame.image.load("./graphics/decoration/sky_box/middle.png").convert()
+        self.bottom = pygame.image.load("./graphics/decoration/sky_box/bottom.png").convert()
 
         self.horizon = horizon
 
@@ -15,6 +17,18 @@ class Skybox:
         self.middle = pygame.transform.scale(self.top,(screen_width, tile_size))
         self.bottom = pygame.transform.scale(self.top,(screen_width, tile_size))
     
+        self.style = style
+        if self.style == "overworld":
+            background_surfaces = import_folder("./graphics/overworld/background")
+            self.back = []
+
+            for surface in [choice(background_surfaces) for image in range(10)]:
+                x = randint(0, screen_width)
+                y = (self.horizon * tile_size) + randint(50, 100)
+                rect = surface.get_rect(midbottom = (x, y))
+                self.back.append((surface, rect))
+            
+
     def draw(self, surface):
         x = 0 # is always 0 for a level
         for row in range(vertical_tile_number):
@@ -25,6 +39,10 @@ class Skybox:
                 surface.blit(self.middle,(x, y))
             else:
                 surface.blit(self.bottom, (x, y))
+        
+        if self.style == "overworld":
+            for bg in self.back:
+                surface.blit(bg[0], bg[1])
 
 class Water:
     def __init__(self, top, level_width):
