@@ -73,8 +73,8 @@ class Level:
                         sprite = StaticTile(tile_size, x, y, tile_surface)
                     
                     if type == "coins":
-                        if val == "0": sprite = Coin(tile_size, x, y, "./graphics/coins/gold", 5)
-                        if val == "1": sprite = Coin(tile_size, x, y, "./graphics/coins/silver", 1)
+                        if val == "0": sprite = Coin(tile_size, x, y, "./graphics/coins/gold/anim", 5)
+                        #if val == "1": sprite = Coin(tile_size, x, y, "./graphics/coins/silver/anim", 1) FIXME: silver coins not working
 
                     if type == "enemies":
                         sprite = Enemy(tile_size, x, y)
@@ -258,7 +258,6 @@ class Level:
 
         # skybox
         self.skybox.draw(self.display_surface)
-        self.clouds.draw(self.display_surface, self.world_shift)
         
         # terrain
         self.terrain_sprites.update(self.world_shift)

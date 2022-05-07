@@ -2,7 +2,7 @@ import pygame
 from support import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, surface, create_jump_particles):
+    def __init__(self, pos, surface, create_jump_particles, change_health):
         """
         initialization of the player
         """
