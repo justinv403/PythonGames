@@ -1,256 +1,324 @@
-import pygame
-from decoration import Skybox
+import pygame 
 from support import import_csv_layout, import_cut_graphic
 from settings import tile_size, screen_height, screen_width
-from tiles import AnimatedTile, Tile, StaticTile, Coin
+from tiles import Tile, StaticTile, Coin
 from enemy import Enemy
 from decoration import Skybox, Water
 from player import Player
 from particles import ParticleEffect
+from game_data import levels
 
 class Level:
-    def __init__(self, level_data, surface):
+	def __init__(self, current_level, surface, create_overworld, change_coins, change_health):
+		"""
+		Initialization of the level class
+		"""
+		
+		# level setup
+		self.display_surface = surface
+		self.world_shift = 0 # player movement
+		self.current_x = None
+
+		# overworld connection 
+		self.create_overworld = create_overworld
+		self.current_level = current_level
+		level_data = levels[self.current_level]
+		self.new_max_level = level_data["unlock"]
+
+		# player 
+		player_layout = import_csv_layout(level_data["player"])
+		self.player = pygame.sprite.GroupSingle()
+		self.goal = pygame.sprite.GroupSingle()
+		self.player_setup(player_layout, change_health)
+
+		# UI
+		self.change_coins = change_coins
+
+		# dust particle
+		self.dust_sprite = pygame.sprite.GroupSingle()
+		self.player_on_ground = False
+
+		# explosion particle
+		self.explosion_sprites = pygame.sprite.Group()
+
+		# terrain setup
+		terrain_layout = import_csv_layout(level_data["terrain"])
+		self.terrain_sprites = self.create_tile_group(terrain_layout, "terrain")
+
+		# coins 
+		coin_layout = import_csv_layout(level_data["coins"])
+		self.coin_sprites = self.create_tile_group(coin_layout, "coins")
+
+		# enemy 
+		enemy_layout = import_csv_layout(level_data["enemies"])
+		self.enemy_sprites = self.create_tile_group(enemy_layout, "enemies")
+
+		# constraints
+		constraint_layout = import_csv_layout(level_data["constraints"])
+		self.constraint_sprites = self.create_tile_group(constraint_layout, "constraint")
+
+		# decoration 
+		self.sky = Skybox(8)
+		level_width = len(terrain_layout[0]) * tile_size
+		self.water = Water(screen_height - 50, level_width)
+
+
+	def create_tile_group(self, layout, type):
+		"""
+		Creates each group of tiles for the level
+		E.g. terrain, coins, enemies, etc...
+		"""
+		sprite_group = pygame.sprite.Group()
+
+		for row_index, row in enumerate(layout):
+			for col_index, val in enumerate(row):
+				if val != "-1":
+					x = col_index * tile_size
+					y = row_index * tile_size
+
+					if type == "terrain":
+						terrain_tile_list = import_cut_graphic("./graphics/Terrain/Mossy Tileset/MossyTileSet.png")
+						tile_surface = terrain_tile_list[int(val)]
+						sprite = StaticTile(tile_size, x, y, tile_surface)
+
+					if type == "coins":
+						if val == "0": sprite = Coin(tile_size, x, y,"./graphics/coins/gold/anim", 5)
+						if val == "1": sprite = Coin(tile_size, x, y,"./graphics/coins/silver/anim", 1)
+
+					if type == "enemies":
+						sprite = Enemy(tile_size, x, y)
+
+					if type == "constraint":
+						sprite = Tile(tile_size, x, y)
+
+					sprite_group.add(sprite)
+		
+		return sprite_group
+
+
+	def player_setup(self, layout, change_health):
+		"""
+		Sets up the player based on the position in the csv files
+		"""
+		for row_index, row in enumerate(layout):
+			for col_index, val in enumerate(row):
+				x = col_index * tile_size
+				y = row_index * tile_size
+				if val == "0":
+					sprite = Player((x,y), self.display_surface, self.create_jump_particles, change_health)
+					self.player.add(sprite)
+				if val == "1":
+					hat_surface = pygame.image.load("./graphics/character/hat.png").convert_alpha()
+					sprite = StaticTile(tile_size, x, y, hat_surface)
+					self.goal.add(sprite)
+
+
+	def enemy_collision_reverse(self):
+		"""
+        Reverses the enemy direction when they hit a collider box
         """
-        Creation of the level class
+		for enemy in self.enemy_sprites.sprites():
+			if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
+				enemy.reverse()
+
+
+	def create_jump_particles(self, pos):
+		"""
+        Creates the jump particles for the player animations
         """
-        
-        # general setup
-        self.display_surface = surface
-        self.world_shift = 0
-
-        # player setup
-        player_layout = import_csv_layout(level_data["player"])
-        self.player = pygame.sprite.GroupSingle()
-        self.goal = pygame.sprite.GroupSingle()
-        self.player_setup(player_layout)
-
-        # dust
-        self.dust_sprite = pygame.sprite.GroupSingle()
-        self.player_on_ground = False
-        
-        # terrain setup
-        terrain_layout = import_csv_layout(level_data["terrain"])
-        self.terrain_sprites = self.create_tile_group(terrain_layout, "terrain")
-
-        # coins
-        coin_layout = import_csv_layout(level_data["coins"])
-        self.coin_sprites = self.create_tile_group(coin_layout, "coins")
-    
-        # enemy
-        enemy_layout = import_csv_layout(level_data["enemies"])
-        self.enemy_sprites = self.create_tile_group(enemy_layout, "enemies")
-
-        # constraints 
-        # hidden constraint boxes for enemy movement
-        constraint_layout = import_csv_layout(level_data["constraints"])
-        self.constraint_sprites = self.create_tile_group(constraint_layout, "constraint")
-
-        # decoration
-        self.sky_box = Skybox(8)
-        level_width = len(terrain_layout[0]) * tile_size
-        self.water = Water(screen_height - 40, level_width)
+		if self.player.sprite.facing_right:
+			pos -= pygame.math.Vector2(10,5)
+		else:
+			pos += pygame.math.Vector2(10,-5)
+		jump_particle_sprite = ParticleEffect(pos, "jump")
+		self.dust_sprite.add(jump_particle_sprite)
 
 
-    def create_tile_group(self, layout, type):
+	def horizontal_collision(self):
+		"""
+        Handles horizontal collision with static sprites
         """
-        Creates a tile group to render
-        
-        :param1 layout: list from the csv interpreter (import_csv_layout) for each group
-        :param2 type: string containing the name of the type of sprite group to create
+		player = self.player.sprite
+		player.rect.x += player.direction.x * player.speed
+		collidable_sprites = self.terrain_sprites.sprites()
+		for sprite in collidable_sprites:
+			if sprite.rect.colliderect(player.rect):
+				if player.direction.x < 0: 
+					player.rect.left = sprite.rect.right
+					player.on_left = True
+					self.current_x = player.rect.left
+				elif player.direction.x > 0:
+					player.rect.right = sprite.rect.left
+					player.on_right = True
+					self.current_x = player.rect.right
+
+		if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0):
+			player.on_left = False
+		if player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
+			player.on_right = False
+
+
+	def vertical_collision(self):
+		"""
+        Handles vertical collision with static sprites
+        - also applies gravity to the player
         """
-        
-        sprite_group = pygame.sprite.Group()
+		player = self.player.sprite
+		player.apply_gravity()
+		collidable_sprites = self.terrain_sprites.sprites()
 
-        for row_index, row in enumerate(layout):
-            for col_index, val in enumerate(row):
-                if val != "-1": # csv is in terms of strings
-                    x = col_index * tile_size
-                    y = row_index * tile_size
+		for sprite in collidable_sprites:
+			if sprite.rect.colliderect(player.rect):
+				if player.direction.y > 0: 
+					player.rect.bottom = sprite.rect.top
+					player.direction.y = 0
+					player.on_ground = True
+				elif player.direction.y < 0:
+					player.rect.top = sprite.rect.bottom
+					player.direction.y = 0
+					player.on_ceiling = True
 
-                    # handles the different types of objects to render
-                    if type == "terrain":
-                        terrain_tile_list = import_cut_graphic("./graphics/terrain/Mossy Tileset/Mossy - TileSet.png")
-                        tile_surface = terrain_tile_list[int(val)]
-                        sprite = StaticTile(tile_size, x, y, tile_surface)
-                    
-                    if type == "coins":
-                        if val == "0":
-                            sprite = Coin(tile_size, x, y, "./graphics/coins/gold/anim")
-                        #if val == "1": FIXME: Error out of range for silver coins
-                        #    sprite = Coin(tile_size, x, y, "./grahpics/coins/silver/anim")
-                    
-                    if type == "enemies":
-                        sprite = Enemy(tile_size, x, y)
-
-                    if type == "constraint":
-                        sprite = Tile(tile_size, x, y)
-
-                    sprite_group.add(sprite)
-
-        return sprite_group
-
-    
-    def player_setup(self, layout):
-        """
-        Sets up the player
-        """
-        for row_index, row in enumerate(layout):
-            for col_index, val in enumerate(row):
-                x = col_index * tile_size
-                y = row_index * tile_size - (3*tile_size)
-                if val != "0": # csv is in terms of strings
-                    sprite = Player((128,y), self.display_surface, self.create_jump_particles) #FIXME: player spawn position should be automatic, instead of manually adding 128 it should be x
-                    self.player.add(sprite)
-                    pass
-                if val != "1": # csv is in terms of strings
-                    hat_surface = pygame.image.load("./graphics/character/hat/wizhat-blue-72x72-2.png")
-                    hat_surface = pygame.transform.scale(hat_surface, (48,48)).convert_alpha()
-                    sprite = StaticTile(tile_size, x+8, y+8, hat_surface)
-                    self.goal.add(sprite)
+		if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+			player.on_ground = False
+		if player.on_ceiling and player.direction.y > 0.1:
+			player.on_ceiling = False
 
 
-    def enemy_collision_reverse(self):
-        """
-        Flips the enemy direction if they collide with a constraint
-        """
-        for enemy in self.enemy_sprites.sprites():
-            if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False): # false means it doesn't destroy the constraint
-                enemy.reverse()
+	def scroll_x(self):
+		"""
+		Scrolling information for other objects - detects if the player is a certain distance
+		to a side of the screen then applies a world shift
+		"""
+		player = self.player.sprite
+		player_x = player.rect.centerx
+		direction_x = player.direction.x
+
+		if player_x < screen_width / 4 and direction_x < 0:
+			self.world_shift = 8
+			player.speed = 0
+		elif player_x > screen_width - (screen_width / 4) and direction_x > 0:
+			self.world_shift = -8
+			player.speed = 0
+		else:
+			self.world_shift = 0
+			player.speed = 8
 
 
-    def create_jump_particles(self, pos):
-        if self.player.sprite.facing_right: # offset for the jump particles to look better
-           pos -= pygame.math.Vector2(10, 5)
-        else:
-            pos += pygame.math.Vector2(10, -5)
-        jump_particle_sprite = ParticleEffect(pos, "jump")
-        self.dust_sprite.add(jump_particle_sprite)
-
-    
-    def horizontal_collision(self): # handles horizontal collision of the player
-        player = self.player.sprite # gets the player sprite so it doesn't have to be specifically called each time
-        player.rect.x += player.direction.x * player.speed
-
-        # sprites the player can collide with
-        collidable_sprites = self.terrain_sprites.sprites() + self.enemy_sprites.sprites()
-
-        for sprite in collidable_sprites: # sets the player to the right side of whatever they collide with
-            if sprite.rect.colliderect(player.rect):
-                
-                if player.direction.x < 0:
-                    player.rect.left = sprite.rect.right
-                    player.on_left = True
-                    self.current_x = player.rect.left
-                
-                elif player.direction.x > 0:
-                    player.rect.right = sprite.rect.left
-                    player.on_right = True
-                    self.current_x = player.rect.right
-        
-        if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0):
-            player.on_left = False
-        if player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
-            player.on_right = False
+	def get_player_on_ground(self):
+		"""
+		Detects if the player has hit the ground
+		"""
+		if self.player.sprite.on_ground:
+			self.player_on_ground = True
+		else:
+			self.player_on_ground = False
 
 
-    def vertical_collision(self): # handles vertical collision of the player and some gravity logic
-        player = self.player.sprite
-        player.apply_gravity()
+	def create_landing_dust(self):
+		"""
+		Creates landing dust if the player hits the ground
+		"""
+		if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
+			if self.player.sprite.facing_right:
+				offset = pygame.math.Vector2(10,15)
+			else:
+				offset = pygame.math.Vector2(-10,15)
+			fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset, "land")
+			self.dust_sprite.add(fall_dust_particle)
 
-        # sprites the player can collide with
-        collidable_sprites = self.terrain_sprites.sprites() + self.enemy_sprites.sprites()
 
-        # prevents the player from going up through an object or through an object below
-        for sprite in collidable_sprites:
-            if sprite.rect.colliderect(player.rect):
-                if player.direction.y < 0:
-                    player.rect.top = sprite.rect.bottom
-                    player.direction.y = 0 # fixes gettings stuck to ceilings
-                    player.on_ceiling = True
-                elif player.direction.y > 0:
-                    player.rect.bottom = sprite.rect.top
-                    player.direction.y = 0 # fixes infinity gravity glitch on floors
-                    player.on_ground = True
-        
-        # checks for ground and ceiling contact (helps animation quality)
-        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
-            player.on_ground = False
-        if player.on_ceiling and player.direction.y > 0.1:
-            player.on_ceiling = False
-    
+	def check_death(self):
+		"""
+		Checks if the player has died
+		"""
+		if self.player.sprite.rect.top > screen_height:
+			self.create_overworld(self.current_level, 0)
 
-    def scroll_x(self): # horizontal level scrolling logic
-        player = self.player.sprite
-        player_x = player.rect.centerx
-        direction_x = player.direction.x
-        
-        # finds where the player is and determines whether the screen should shift or not
-        if player_x < (screen_width / 3)  and direction_x < 0:
-            self.world_shift = 8
-            player.speed = 0
-        elif player_x > (screen_width - (screen_width / 3)) and direction_x > 0:
-            self.world_shift = -8
-            player.speed = -0
-        else:
-            self.world_shift = 0
-            player.speed = 8
 
-    
-    def get_player_on_ground(self): # important for landing particles
-        if self.player.sprite.on_ground:
-            self.player_on_ground = True
-        else:
-            self.player_on_ground = False
-    
+	def check_win(self):
+		"""
+		Sees if the player wins by colliding with the end sprite
+		"""
+		if pygame.sprite.spritecollide(self.player.sprite, self.goal, False):
+			self.create_overworld(self.current_level, self.new_max_level)
 
-    def create_landing_dust(self):
-        if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
-            if self.player.sprite.facing_right:
-                offset = pygame.math.Vector2(10,15)
-            else:
-                offset = pygame.math.Vector2(-10,15)
-            fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset,"land")
-            self.dust_sprite.add(fall_dust_particle)
-    
 
-    def run(self):
-        """
-        Runs the entire game/level
-        Rendering order - things rendered after render on top
-        """
-        # skybox
-        self.sky_box.draw(self.display_surface)
-        
-        # coin sprites
-        self.coin_sprites.update(self.world_shift)
-        self.coin_sprites.draw(self.display_surface)
+	def check_coin_collisions(self):
+		"""
+		Detects if the player collides with a coin
+		"""
+		collided_coins = pygame.sprite.spritecollide(self.player.sprite, self.coin_sprites, True)
+		if collided_coins:
+			for coin in collided_coins:
+				self.change_coins(coin.value)
 
-        # enemy sprites
-        self.enemy_sprites.update(self.world_shift)
-        self.constraint_sprites.update(self.world_shift)
-        self.enemy_collision_reverse()
-        self.enemy_sprites.draw(self.display_surface)
 
-        # dust particles
-        self.dust_sprite.update(self.world_shift)
-        self.dust_sprite.draw(self.display_surface)
+	def check_enemy_collisions(self):
+		enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemy_sprites, False)
 
-        # player sprites
-        self.player.update()
-        self.horizontal_collision()
-        
-        self.get_player_on_ground()
-        self.vertical_collision()
-        self.create_landing_dust()
-        
-        self.scroll_x()
-        self.player.draw(self.display_surface)
-        self.goal.update(self.world_shift)
-        self.goal.draw(self.display_surface)
+		if enemy_collisions:
+			for enemy in enemy_collisions:
+				enemy_center = enemy.rect.centery
+				enemy_top = enemy.rect.top
+				player_bottom = self.player.sprite.rect.bottom
+				if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y >= 0:
+					self.player.sprite.direction.y = -15
+					explosion_sprite = ParticleEffect(enemy.rect.center, "explosion")
+					self.explosion_sprites.add(explosion_sprite)
+					enemy.kill()
+				else:
+					self.player.sprite.get_damage()
 
-        # water
-        self.water.draw(self.display_surface, self.world_shift)
-        
-        # terrain sprites
-        self.terrain_sprites.update(self.world_shift)
-        self.terrain_sprites.draw(self.display_surface)
+
+	def run(self):
+		"""
+		Runs the entire level class
+		"""
+		
+		# The order that these are done is VERY important -
+        # objects rendered after will be in front, and those rendered before will be behind
+		
+
+		# skybox
+		self.sky.draw(self.display_surface)
+
+		# water 
+		self.water.draw(self.display_surface, self.world_shift)
+		
+		# terrain 
+		self.terrain_sprites.update(self.world_shift)
+		self.terrain_sprites.draw(self.display_surface)
+		
+		# enemy 
+		self.enemy_sprites.update(self.world_shift)
+		self.constraint_sprites.update(self.world_shift)
+		self.enemy_collision_reverse()
+		self.enemy_sprites.draw(self.display_surface)
+		self.explosion_sprites.update(self.world_shift)
+		self.explosion_sprites.draw(self.display_surface)
+
+		# coins 
+		self.coin_sprites.update(self.world_shift)
+		self.coin_sprites.draw(self.display_surface)
+
+		# dust particles 
+		self.dust_sprite.update(self.world_shift)
+		self.dust_sprite.draw(self.display_surface)
+
+		# player sprites
+		self.player.update()
+		self.horizontal_collision()
+		self.get_player_on_ground()
+		self.vertical_collision()
+		self.create_landing_dust()
+		
+		self.scroll_x()
+		self.player.draw(self.display_surface)
+		self.goal.update(self.world_shift)
+		self.goal.draw(self.display_surface)
+
+		self.check_death()
+		self.check_win()
+
+		self.check_coin_collisions()
+		self.check_enemy_collisions()

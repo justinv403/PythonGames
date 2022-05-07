@@ -1,8 +1,9 @@
 import pygame
 from support import *
+from math import sin #important for the player flicker animation after taking damage
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, surface, create_jump_particles):
+    def __init__(self, pos, surface, create_jump_particles, change_health):
         """
         initialization of the player
         """
@@ -36,6 +37,12 @@ class Player(pygame.sprite.Sprite):
         self.on_ceiling = False
         self.on_left = False
         self.on_right = False
+
+        # health data
+        self.change_health = change_health
+        self.invincible = False
+        self.invincibility_duration = 250
+        self.hurt_time = 0
 
 
     def character_assets(self):
@@ -73,6 +80,12 @@ class Player(pygame.sprite.Sprite):
             flipped_image = pygame.transform.flip(image,True,False)
             self.image = flipped_image
         
+        if self.invincible:
+            alpha = self.wave_value()
+            self.image.set_alpha(alpha)
+        else:
+            self.image.set_alpha(255)
+
         # set the rectangle positions
         # collision scenarios for ground
         if self.on_ground and self.on_right:
@@ -166,6 +179,39 @@ class Player(pygame.sprite.Sprite):
         self.direction.y = self.jump_height
 
 
+    def get_damage(self):
+        """
+        Function used to apply damage to the player and initiate invincibility frames
+        """
+        if not self.invincible:
+            self.change_health(-10)
+            
+            # applies "invincibility frames"
+            self.invincible = True
+            self.hurt_time = pygame.time.get_ticks()
+
+
+    def invincibility_timer(self):
+        """
+        Calculates the time for invincibility frames to last
+        """
+        if self.invincible:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.hurt_time >= self.invincibility_duration:
+                self.invincible = False
+
+
+    def wave_value(self):
+        """
+        Flicker calculator for the invincibility animation
+        """
+        value = sin(pygame.time.get_ticks())
+        if value >= 0: 
+            return 255
+        else: 
+            return 0
+
+
     def update(self):
         """
         Updates the player object
@@ -174,3 +220,5 @@ class Player(pygame.sprite.Sprite):
         self.get_status()
         self.animate()
         self.run_dust_animate()
+        self.invincibility_timer()
+        self.wave_value()
