@@ -12,3 +12,5 @@ Mossy Cavern Assets and Sprites provided by Maaot (https://maaot.itch.io/mossy-c
 Wizard Hats provided by Alomora (https://alomora.itch.io/wizard-hats-icons)
 
 Movement is either with WASD, Spacebar, or arrow keys
+
+Note: Currently the overworld is quite broken, and the sprites in the overworld have been borrowed from the tutorial provided by Clear Code due to time constraints. Dying or beating the final level also causes a crash.
