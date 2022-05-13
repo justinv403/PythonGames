@@ -1,3 +1,11 @@
+# Original Idea: Based upon the guide by Clear Code on Youtube https://www.youtube.com/watch?v=YWN8GcmJ-jA&t=2229s
+# Added + Changed Features: Changed most of the sprites (apart from the overworld + health/coin sprites) and made scaling accomodations for the different sprite resolutions
+#                           Added a few bugfixes and changes to the original to make it feel better to play
+#                           Added more input options for different control schemes (wasd or arrow keys or space bar for jump)
+#                           Added a name to the window
+#                           Added FPS options, but several changes would need to be made to prevent game slowdown or speedup based on framerate, so it is currently locked to 60fps
+#                            - See "fps" variable within this file
+
 import pygame, sys
 from settings import *
 from overworld import Overworld
